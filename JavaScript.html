@@ -1,0 +1,166 @@
+<script>
+    // Initialize the form when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show loading state
+      showLoader(true);
+      
+      // Initialize price validation
+      setupPriceValidation();
+      
+      // Get filter data from the server
+      google.script.run
+        .withSuccessHandler(function(data) {
+          populateFormOptions(data);
+          showLoader(false);
+        })
+        .withFailureHandler(function(error) {
+          showError("Failed to load filter options: " + error);
+          showLoader(false);
+        })
+        .getFilterFormData();
+    });
+    
+    // Setup price validation
+    function setupPriceValidation() {
+      const minPrice = document.getElementById('minPrice');
+      const maxPrice = document.getElementById('maxPrice');
+      const priceError = document.getElementById('priceError');
+      
+      function validatePrices() {
+        if (minPrice.value && maxPrice.value) {
+          if (parseFloat(minPrice.value) > parseFloat(maxPrice.value)) {
+            priceError.textContent = 'Min price cannot be greater than max price';
+            return false;
+          }
+        }
+        priceError.textContent = '';
+        return true;
+      }
+      
+      minPrice.addEventListener('input', validatePrices);
+      maxPrice.addEventListener('input', validatePrices);
+    }
+    
+    // Populate form options with data from the spreadsheet
+    function populateFormOptions(data) {
+      // Populate color dropdown
+      populateDropdown('color', data.colors);
+      
+      // Populate size dropdown
+      populateDropdown('size', data.sizes);
+      
+      // Populate gender dropdown
+      populateDropdown('gender', data.genders);
+    }
+    
+    // Helper function to populate dropdowns
+    function populateDropdown(id, options) {
+      const select = document.getElementById(id);
+      
+      // Clear existing options except the first one
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      // Add new options
+      options.forEach(function(value) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+      });
+    }
+    
+    // Reset all filters
+    function resetFilters() {
+      document.getElementById('minPrice').value = '';
+      document.getElementById('maxPrice').value = '';
+      document.getElementById('color').value = '';
+      document.getElementById('size').value = '';
+      document.getElementById('gender').value = '';
+      document.getElementById('priceError').textContent = '';
+      
+      // Show feedback
+      const status = document.getElementById('status');
+      status.textContent = 'Filters reset';
+      status.style.opacity = '1';
+      
+      // Hide status after 2 seconds
+      setTimeout(function() {
+        status.style.opacity = '0';
+      }, 2000);
+    }
+    
+    // Apply the selected filters
+    function applyFilters() {
+      // Validate price inputs
+      const priceError = document.getElementById('priceError');
+      const minPrice = document.getElementById('minPrice').value;
+      const maxPrice = document.getElementById('maxPrice').value;
+      
+      if (minPrice && maxPrice && parseFloat(minPrice) > parseFloat(maxPrice)) {
+        priceError.textContent = 'Min price cannot be greater than max price';
+        return;
+      }
+      
+      // Show loader
+      showLoader(true);
+      
+      // Get filter values
+      const color = document.getElementById('color').value;
+      const size = document.getElementById('size').value;
+      const gender = document.getElementById('gender').value;
+      
+      // Call the server-side function to filter products
+      google.script.run
+        .withSuccessHandler(function(result) {
+          // Update status message
+          const statusElement = document.getElementById('status');
+          statusElement.textContent = result.message;
+          statusElement.style.opacity = '1';
+          statusElement.style.color = '#1a73e8';
+          
+          // Hide loader
+          showLoader(false);
+          
+          // Close the dialog after a short delay
+          setTimeout(function() {
+            google.script.host.close();
+          }, 2000);
+        })
+        .withFailureHandler(function(error) {
+          // Show error message
+          const statusElement = document.getElementById('status');
+          statusElement.textContent = 'Error: ' + error;
+          statusElement.style.color = '#d93025';
+          statusElement.style.opacity = '1';
+          
+          // Hide loader
+          showLoader(false);
+        })
+        .filterProducts(minPrice, maxPrice, color, size, gender);
+    }
+    
+    // Show or hide the loader
+    function showLoader(show) {
+      const loader = document.getElementById('loader');
+      if (show) {
+        loader.classList.add('active');
+      } else {
+        loader.classList.remove('active');
+      }
+    }
+    
+    // Show error in status area
+    function showError(message) {
+      const statusElement = document.getElementById('status');
+      statusElement.textContent = message;
+      statusElement.style.color = '#d93025';
+      statusElement.style.opacity = '1';
+    }
+    
+    // Close the dialog
+    function closeDialog() {
+      google.script.host.close();
+    }
+  </script>

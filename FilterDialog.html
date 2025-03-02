@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= include('Stylesheet'); ?>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h2>Filter Products</h2>
+        <p class="subtitle">Refine your product list with the filters below</p>
+      </header>
+      
+      <div class="filter-form">
+        <div class="form-group">
+          <label>Price Range</label>
+          <div class="price-inputs">
+            <div class="input-with-icon">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="minPrice" placeholder="Min" min="0" step="0.01">
+            </div>
+            <div class="separator">to</div>
+            <div class="input-with-icon">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="maxPrice" placeholder="Max" min="0" step="0.01">
+            </div>
+          </div>
+          <div id="priceError" class="error-message"></div>
+        </div>
+        
+        <div class="form-group">
+          <label for="color">Color</label>
+          <div class="select-wrapper">
+            <select id="color">
+              <option value="">All Colors</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="size">Size</label>
+          <div class="select-wrapper">
+            <select id="size">
+              <option value="">All Sizes</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <div class="select-wrapper">
+            <select id="gender">
+              <option value="">All Genders</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div id="status" class="status-message"></div>
+      
+      <div class="button-group">
+        <button id="resetBtn" class="reset-button" onclick="resetFilters()">Reset</button>
+        <div class="action-buttons">
+          <button id="cancelBtn" onclick="closeDialog()" class="cancel-button">Cancel</button>
+          <button id="applyBtn" onclick="applyFilters()" class="primary-button">Apply Filters</button>
+        </div>
+      </div>
+      
+      <div id="loader" class="loader-container">
+        <div class="loader"></div>
+        <p>Processing your request...</p>
+      </div>
+    </div>
+    
+    <?!= include('JavaScript'); ?>
+  </body>
+</html>
