@@ -1,13 +1,9 @@
 <script>
-    // Initialize the form when the page loads
+    // Main initialization and event handling for the product filter form
     document.addEventListener('DOMContentLoaded', function() {
-      // Show loading state
       showLoader(true);
-      
-      // Initialize price validation
       setupPriceValidation();
       
-      // Get filter data from the server
       google.script.run
         .withSuccessHandler(function(data) {
           populateFormOptions(data);
@@ -18,9 +14,11 @@
           showLoader(false);
         })
         .getFilterFormData();
+  
+      setupScrollbarFade();
     });
     
-    // Setup price validation
+    // Validates min and max price inputs to ensure min <= max
     function setupPriceValidation() {
       const minPrice = document.getElementById('minPrice');
       const maxPrice = document.getElementById('maxPrice');
@@ -41,28 +39,20 @@
       maxPrice.addEventListener('input', validatePrices);
     }
     
-    // Populate form options with data from the spreadsheet
+    // Populates dropdown menus with data from the spreadsheet
     function populateFormOptions(data) {
-      // Populate color dropdown
       populateDropdown('color', data.colors);
-      
-      // Populate size dropdown
       populateDropdown('size', data.sizes);
-      
-      // Populate gender dropdown
       populateDropdown('gender', data.genders);
     }
     
-    // Helper function to populate dropdowns
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       
-      // Clear existing options except the first one
       while (select.options.length > 1) {
         select.remove(1);
       }
       
-      // Add new options
       options.forEach(function(value) {
         const option = document.createElement('option');
         option.value = value;
@@ -71,7 +61,7 @@
       });
     }
     
-    // Reset all filters
+    // Resets all filter inputs to their default values
     function resetFilters() {
       document.getElementById('minPrice').value = '';
       document.getElementById('maxPrice').value = '';
@@ -80,20 +70,17 @@
       document.getElementById('gender').value = '';
       document.getElementById('priceError').textContent = '';
       
-      // Show feedback
       const status = document.getElementById('status');
       status.textContent = 'Filters reset';
       status.style.opacity = '1';
       
-      // Hide status after 2 seconds
       setTimeout(function() {
         status.style.opacity = '0';
       }, 2000);
     }
     
-    // Apply the selected filters
+    // Applies selected filters and sends data to server for processing
     function applyFilters() {
-      // Validate price inputs
       const priceError = document.getElementById('priceError');
       const minPrice = document.getElementById('minPrice').value;
       const maxPrice = document.getElementById('maxPrice').value;
@@ -103,45 +90,36 @@
         return;
       }
       
-      // Show loader
       showLoader(true);
       
-      // Get filter values
       const color = document.getElementById('color').value;
       const size = document.getElementById('size').value;
       const gender = document.getElementById('gender').value;
       
-      // Call the server-side function to filter products
       google.script.run
         .withSuccessHandler(function(result) {
-          // Update status message
           const statusElement = document.getElementById('status');
           statusElement.textContent = result.message;
           statusElement.style.opacity = '1';
-          statusElement.style.color = '#1a73e8';
+          statusElement.style.color = '#6e2ff2';
           
-          // Hide loader
           showLoader(false);
           
-          // Close the dialog after a short delay
           setTimeout(function() {
             google.script.host.close();
           }, 2000);
         })
         .withFailureHandler(function(error) {
-          // Show error message
           const statusElement = document.getElementById('status');
           statusElement.textContent = 'Error: ' + error;
           statusElement.style.color = '#d93025';
           statusElement.style.opacity = '1';
           
-          // Hide loader
           showLoader(false);
         })
         .filterProducts(minPrice, maxPrice, color, size, gender);
     }
     
-    // Show or hide the loader
     function showLoader(show) {
       const loader = document.getElementById('loader');
       if (show) {
@@ -151,7 +129,6 @@
       }
     }
     
-    // Show error in status area
     function showError(message) {
       const statusElement = document.getElementById('status');
       statusElement.textContent = message;
@@ -159,8 +136,41 @@
       statusElement.style.opacity = '1';
     }
     
-    // Close the dialog
     function closeDialog() {
       google.script.host.close();
+    }
+  
+    // Manages scrollbar visibility with fade effect
+    function setupScrollbarFade() {
+      const container = document.querySelector('.container');
+      let fadeTimer;
+      let isActive = false;
+      
+      function showScrollbar() {
+        if (!isActive) {
+          isActive = true;
+          container.classList.remove('hide-scrollbar');
+        }
+      }
+      
+      function hideScrollbar() {
+        if (isActive) {
+          isActive = false;
+          container.classList.add('hide-scrollbar');
+        }
+      }
+      
+      function resetFadeTimer() {
+        clearTimeout(fadeTimer);
+        showScrollbar();
+        fadeTimer = setTimeout(hideScrollbar, 3000);
+      }
+      
+      container.addEventListener('scroll', resetFadeTimer);
+      container.addEventListener('mousemove', resetFadeTimer);
+      container.addEventListener('mouseenter', resetFadeTimer);
+      
+      showScrollbar();
+      fadeTimer = setTimeout(hideScrollbar, 3000);
     }
   </script>
