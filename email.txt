@@ -1,11 +1,11 @@
 Subject: How to Use Our New Product Filters in Google Sheets
-Hi Non Tech Person,
+Hi Person,
 This is our new Product Filter tool for our Google Sheets document, and here's how to use it:
 Using the Product Filters (Step-by-Step):
 
 - Open our Google Sheets document
 - Look for the "Product Filters" menu at the top (next to "Help")
-- Click on "Product Filters" and select "Show Filter Dialog"
+- Click on "Product Filters" and select "Open Filters"
 - A small window will pop up with filtering options:
 
 To filter by price: Enter minimum and/or maximum price values
@@ -14,7 +14,7 @@ To filter by size: Choose a size from the options
 To filter by gender: Select the gender category you need
 
 
-Click the blue "Apply Filters" button
+Click the "Apply Filters" button
 Two new sheets will automatically be created:
 
 A sheet with your filtered products
